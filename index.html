@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Stars Shop</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #1c1c1e);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --button-color: var(--tg-theme-button-color, #007aff);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #2c2c2e);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            padding: 16px; margin: 0; user-select: none;
+        }
+        .admin-panel {
+            display: none; background: var(--secondary-bg);
+            padding: 16px; border-radius: 12px; margin-bottom: 20px;
+            border: 2px dashed var(--button-color);
+        }
+        input, select {
+            width: 100%; padding: 12px; margin: 8px 0;
+            border-radius: 8px; border: 1px solid #444;
+            background: #3a3a3c; color: white; box-sizing: border-box;
+        }
+        .catalog-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .card {
+            background: var(--secondary-bg); padding: 16px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-info { display: flex; flex-direction: column; gap: 4px; }
+        .card-title { font-weight: bold; font-size: 16px; }
+        .card-price { color: #ffb300; font-size: 15px; font-weight: bold; }
+        .btn {
+            background: var(--button-color); color: var(--button-text);
+            border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Скрытая админка -->
+    <div id="adminView" class="admin-panel">
+        <h3>🛠️ Загрузка нового товара</h3>
+        <input type="text" id="pName" placeholder="Название предмета или услуги">
+        <input type="number" id="pPrice" placeholder="Цена в Звёздах (⭐️)">
+        <button class="btn" style="background:#30d158; width: 100%; margin-top: 10px;" onclick="addProduct()">Опубликовать</button>
+    </div>
+
+    <h2>Витрина товаров за Stars</h2>
+    <div id="catalog" class="catalog-grid"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('role') === 'admin') {
+            document.getElementById('adminView').style.display = 'block';
+        }
+
+        function addProduct() {
+            const name = document.getElementById('pName').value.trim();
+            const price = document.getElementById('pPrice').value.trim();
+            if(!name || !price) return tg.showAlert("Заполните поля!");
+
+            document.getElementById('catalog').innerHTML += `
+                <div class="card">
+                    <div class="card-info">
+                        <span class="card-title">${name}</span>
+                        <span class="card-price">${price} ⭐️</span>
+                    </div>
+                    <button class="btn" onclick="buy('${name}', ${price})">Купить</button>
+                </div>
+            `;
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            tg.showAlert(`Товар добавлен!`);
+        }
+
+        function buy(productName, price) {
+            tg.sendData(JSON.stringify({action: "order", item: productName, cost: parseInt(price)}));
+        }
+    </script>
+</body>
+</html>
