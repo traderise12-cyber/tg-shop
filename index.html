@@ -49,7 +49,7 @@
         <h3>🛠️ Загрузка нового товара</h3>
         <input type="text" id="pName" placeholder="Название предмета или услуги">
         <input type="number" id="pPrice" placeholder="Цена в Звёздах (⭐️)">
-        <button class="btn" style="background:#30d158; width: 100%; margin-top: 10px;" onclick="addProduct()">Опубликовать</button>
+        <button class="btn" style="background:#30d158; width: 100%; margin-top: 10px;" onclick="sendProductToBot()">Опубликовать на витрину</button>
     </div>
 
     <h2>Витрина товаров за Stars</h2>
@@ -59,28 +59,28 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Всегда проверяем маркер роли в ссылке
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('role') === 'admin') {
             document.getElementById('adminView').style.display = 'block';
         }
 
-        function addProduct() {
+        // Функция отправки нового товара боту в чат
+        function sendProductToBot() {
             const name = document.getElementById('pName').value.trim();
             const price = document.getElementById('pPrice').value.trim();
-            if(!name || !price) return tg.showAlert("Заполните поля!");
+            if(!name || !price) return tg.showAlert("Заполните все поля!");
 
-            document.getElementById('catalog').innerHTML += `
-                <div class="card">
-                    <div class="card-info">
-                        <span class="card-title">${name}</span>
-                        <span class="card-price">${price} ⭐️</span>
-                    </div>
-                    <button class="btn" onclick="buy('${name}', ${price})">Купить</button>
-                </div>
-            `;
+            // Отправляем данные админа серверу
+            tg.sendData(JSON.stringify({
+                action: "add_product",
+                item: name,
+                cost: parseInt(price)
+            }));
+            
             document.getElementById('pName').value = '';
             document.getElementById('pPrice').value = '';
-            tg.showAlert(`Товар добавлен!`);
+            tg.close(); // Закрываем WebApp, бот примет данные в чате
         }
 
         function buy(productName, price) {
