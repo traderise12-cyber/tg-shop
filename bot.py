@@ -9,7 +9,7 @@ from aiohttp import web
 # Настройки твоего бота
 API_TOKEN = '8919058903:AAFftDvkOk-h7yu7UOih7tpq-HrcTN04bxk'
 ADMIN_ID = 6523793120
-WEBAPP_URL = 'https://github.io'
+WEBAPP_URL = 'https://traderise12-cyber.github.io/tg-shop/'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
